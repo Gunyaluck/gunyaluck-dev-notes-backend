@@ -1,4 +1,10 @@
 import connectionPool from "../utils/db.mjs";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 export const getPostById = async (postId) => {
   const result = await connectionPool.query(
@@ -10,7 +16,7 @@ export const getPostById = async (postId) => {
 
 export const getAllPosts = async (filters) => {
   const { category, keyword, limit, offset } = filters;
-  
+
   let query = `
     SELECT posts.id, posts.image, categories.name AS category, posts.title, 
            posts.description, posts.date, posts.content, statuses.status, posts.likes_count
@@ -54,14 +60,19 @@ export const getAdminPosts = async (filters) => {
 };
 
 export const getAdminPostById = async (postId) => {
-  const query = `SELECT * FROM posts WHERE id = $1`;
+  const query = `SELECT 
+  posts.*,
+  users.name AS author_name
+  FROM posts
+  JOIN users ON posts.user_id = users.id
+  WHERE posts.id = $1`;
   const result = await connectionPool.query(query, [postId]);
   return result.rows[0];
 };
 
 export const countPosts = async (filters) => {
   const { category, keyword } = filters;
-  
+
   let countQuery = `
     SELECT COUNT(*)
     FROM posts
@@ -94,8 +105,8 @@ export const countPosts = async (filters) => {
 
 export const createPost = async (postData) => {
   const query = `
-    INSERT INTO posts (title, image, category_id, description, content, status_id)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO posts (title, image, category_id, description, content, status_id, user_id)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *
   `;
   const values = [
@@ -105,6 +116,7 @@ export const createPost = async (postData) => {
     postData.description,
     postData.content,
     postData.status_id,
+    postData.user_id,
   ];
 
   const result = await connectionPool.query(query, values);
@@ -115,7 +127,7 @@ export const updatePost = async (postId, postData) => {
   const query = `
     UPDATE posts
     SET image = $1, category_id = $2, title = $3, description = $4, 
-        date = $5, content = $6, status_id = $7, like_count = $8
+        date = $5, content = $6, status_id = $7, likes_count = $8
     WHERE id = $9
     RETURNING *
   `;
@@ -127,7 +139,7 @@ export const updatePost = async (postId, postData) => {
     new Date(),
     postData.content,
     postData.status_id,
-    postData.like_count,
+    postData.likes_count || postData.like_count || 0,
     postId,
   ];
 
@@ -172,4 +184,26 @@ export const deleteLikeByPostId = async (postId, userId) => {
   const values = [postId, userId];
   const result = await connectionPool.query(query, values);
   return result.rows[0];
+};
+
+export const uploadImage = async (file) => {
+  const bucketName = "personal-blog-db";
+  const filePath = `posts/${Date.now()}_${file.originalname}`;
+
+  const { data, error } = await supabase.storage
+    .from(bucketName)
+    .upload(filePath, file.buffer, {
+      contentType: file.mimetype,
+      upsert: false,
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(bucketName).getPublicUrl(data.path);
+
+  return publicUrl;
 };
