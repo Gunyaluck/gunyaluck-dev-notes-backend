@@ -6,6 +6,8 @@ import connectionPool from "./utils/db.mjs";
 import postRoutes from "./routes/postRoute.mjs";
 import authRoutes from "./routes/authRoute.mjs";
 import notificationRoutes from "./routes/notificationRoute.mjs";
+import categoryRoutes from "./routes/categoryRoute.mjs";
+import statusRoutes from "./routes/statusRoute.mjs";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -36,10 +38,12 @@ app.get("/health", async (req, res) => {
   }
 });
 
-// Use post routes
+// Use routes
 app.use("/posts", postRoutes);
 app.use("/auth", authRoutes);
 app.use("/notifications", notificationRoutes);
+app.use("/categories", categoryRoutes);
+app.use("/statuses", statusRoutes);
 
 if (process.env.VERCEL !== "1") {
   app.listen(port, () => {
