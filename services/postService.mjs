@@ -54,6 +54,20 @@ export const createPost = async (postData) => {
   return await postRepository.createPost(postData);
 };
 
+export const getAdminPosts = async (queryParams) => {
+  const category = queryParams.category || "";
+  const keyword = queryParams.keyword || "";
+  const page = Math.max(1, Number(queryParams.page) || 1);
+  const limit = Math.max(1, Math.min(100, Number(queryParams.limit) || 6));
+  const offset = (page - 1) * limit;
+  
+  const filters = { category, keyword, limit, offset };
+};
+
+export const getAdminPostById = async (postId) => {
+  return await postRepository.getAdminPostById(postId);
+};
+
 export const updatePost = async (postId, postData) => {
   const post = await postRepository.getPostById(postId);
   if (!post) {
@@ -77,4 +91,24 @@ export const deletePost = async (postId) => {
   }
 
   return await postRepository.deletePost(postId);
+};
+
+export const getCommentByPostId = async (postId) => {
+  return await postRepository.getCommentByPostId(postId);
+};
+
+export const createCommentByPostId = async (postId, commentData) => {
+  return await postRepository.createCommentByPostId(postId, commentData);
+};
+
+export const getLikeByPostId = async (postId) => {
+  return await postRepository.getLikeByPostId(postId);
+};
+
+export const createLikeByPostId = async (postId, likeData) => {
+  return await postRepository.createLikeByPostId(postId, likeData);
+};
+
+export const deleteLikeByPostId = async (postId, userId) => {
+  return await postRepository.deleteLikeByPostId(postId, userId);
 };
