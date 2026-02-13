@@ -4,6 +4,8 @@ import express from "express";
 import cors from "cors";
 import connectionPool from "./utils/db.mjs";
 import postRoutes from "./routes/postRoute.mjs";
+import authRoutes from "./routes/authRoute.mjs";
+import notificationRoutes from "./routes/notificationRoute.mjs";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -36,6 +38,8 @@ app.get("/health", async (req, res) => {
 
 // Use post routes
 app.use("/posts", postRoutes);
+app.use("/auth", authRoutes);
+app.use("/notifications", notificationRoutes);
 
 if (process.env.VERCEL !== "1") {
   app.listen(port, () => {

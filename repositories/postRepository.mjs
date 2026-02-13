@@ -45,6 +45,20 @@ export const getAllPosts = async (filters) => {
   return result.rows;
 };
 
+export const getAdminPosts = async (filters) => {
+  const { category, keyword, limit, offset } = filters;
+  const query = `SELECT * FROM posts WHERE category_id = $1 AND title ILIKE $2 AND description ILIKE $2 AND content ILIKE $2 ORDER BY date DESC LIMIT $3 OFFSET $4`;
+  const values = [category, `%${keyword}%`, limit, offset];
+  const result = await connectionPool.query(query, values);
+  return result.rows;
+};
+
+export const getAdminPostById = async (postId) => {
+  const query = `SELECT * FROM posts WHERE id = $1`;
+  const result = await connectionPool.query(query, [postId]);
+  return result.rows[0];
+};
+
 export const countPosts = async (filters) => {
   const { category, keyword } = filters;
   
@@ -124,5 +138,38 @@ export const updatePost = async (postId, postData) => {
 export const deletePost = async (postId) => {
   const query = `DELETE FROM posts WHERE id = $1 RETURNING *`;
   const result = await connectionPool.query(query, [postId]);
+  return result.rows[0];
+};
+
+export const getCommentByPostId = async (postId) => {
+  const query = `SELECT * FROM comments WHERE post_id = $1`;
+  const result = await connectionPool.query(query, [postId]);
+  return result.rows[0];
+};
+
+export const createCommentByPostId = async (postId, commentData) => {
+  const query = `INSERT INTO comments (post_id, content, user_id) VALUES ($1, $2, $3) RETURNING *`;
+  const values = [postId, commentData.content, commentData.user_id];
+  const result = await connectionPool.query(query, values);
+  return result.rows[0];
+};
+
+export const getLikeByPostId = async (postId) => {
+  const query = `SELECT * FROM likes WHERE post_id = $1`;
+  const result = await connectionPool.query(query, [postId]);
+  return result.rows[0];
+};
+
+export const createLikeByPostId = async (postId, likeData) => {
+  const query = `INSERT INTO likes (post_id, user_id) VALUES ($1, $2) RETURNING *`;
+  const values = [postId, likeData.user_id];
+  const result = await connectionPool.query(query, values);
+  return result.rows[0];
+};
+
+export const deleteLikeByPostId = async (postId, userId) => {
+  const query = `DELETE FROM likes WHERE post_id = $1 AND user_id = $2 RETURNING *`;
+  const values = [postId, userId];
+  const result = await connectionPool.query(query, values);
   return result.rows[0];
 };
