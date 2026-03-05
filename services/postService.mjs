@@ -1,4 +1,6 @@
 import * as postRepository from "../repositories/postRepository.mjs";
+import * as commentRepository from "../repositories/commentRepository.mjs";
+import * as likeRepository from "../repositories/likeRepository.mjs";
 
 export const getPostById = async (postId) => {
   const post = await postRepository.getPostById(postId);
@@ -19,11 +21,46 @@ export const getAllPosts = async (queryParams) => {
   
   const [posts, totalPosts] = await Promise.all([
     postRepository.getAllPosts(filters),
-    postRepository.countPosts({ category, keyword }),
+    postRepository.countPosts(filters),
   ]);
 
   const totalPages = Math.ceil(totalPosts / limit);
   
+  const results = {
+    totalPosts,
+    totalPages,
+    currentPage: page,
+    limit,
+    posts,
+  };
+
+  if (offset + limit < totalPosts) {
+    results.nextPage = page + 1;
+  }
+
+  if (offset > 0) {
+    results.previousPage = page - 1;
+  }
+
+  return results;
+};
+
+export const getPublishPosts = async (queryParams) => {
+  const category = queryParams.category || "";
+  const keyword = queryParams.keyword || "";
+  const page = Math.max(1, Number(queryParams.page) || 1);
+  const limit = Math.max(1, Math.min(100, Number(queryParams.limit) || 6));
+  const offset = (page - 1) * limit;
+
+  const filters = { category, keyword, limit, offset };
+
+  const [posts, totalPosts] = await Promise.all([
+    postRepository.getPublishPosts(filters),
+    postRepository.countPublishPosts(filters),
+  ]);
+
+  const totalPages = Math.ceil(totalPosts / limit);
+
   const results = {
     totalPosts,
     totalPages,
@@ -94,23 +131,34 @@ export const deletePost = async (postId) => {
 };
 
 export const getCommentByPostId = async (postId) => {
-  return await postRepository.getCommentByPostId(postId);
+  return await commentRepository.getCommentByPostId(postId);
 };
 
 export const createCommentByPostId = async (postId, commentData) => {
-  return await postRepository.createCommentByPostId(postId, commentData);
+  return await commentRepository.createCommentByPostId(postId, commentData);
 };
 
 export const getLikeByPostId = async (postId) => {
-  return await postRepository.getLikeByPostId(postId);
+  const count = await likeRepository.getLikeCountByPostId(postId);
+  return { count };
 };
 
 export const createLikeByPostId = async (postId, likeData) => {
-  return await postRepository.createLikeByPostId(postId, likeData);
+  return await likeRepository.createLikeByPostId(postId, likeData);
+};
+
+export const toggleLikeByPostId = async (postId, userId) => {
+  const existingLike = await likeRepository.getUserLikeByPostId(postId, userId);
+  if (existingLike) {
+    await likeRepository.deleteLikeByPostIdAndUserId(postId, userId);
+    return { liked: false, message: "Removed like successfully" };
+  }
+  const like = await likeRepository.createLikeByPostId(postId, { user_id: userId });
+  return { liked: true, message: "Created like successfully", like };
 };
 
 export const deleteLikeByPostId = async (postId, userId) => {
-  return await postRepository.deleteLikeByPostId(postId, userId);
+  return await likeRepository.deleteLikeByPostIdAndUserId(postId, userId);
 };
 
 export const createPostWithImage = async (postData, file) => {

@@ -13,6 +13,7 @@ const imageFileUpload = multerUpload.fields([
 ]);
 
 router.get("/", postControllers.getAllPosts);
+router.get("/published", postControllers.getPublishPosts);
 router.get("/:id", postControllers.getPostById);
 router.post("/", protectAdmin, imageFileUpload, postControllers.createPostWithImage);
 router.get("/admin", protectAdmin, postControllers.getAdminPosts);
@@ -20,9 +21,9 @@ router.get("/admin/:id", protectAdmin, postControllers.getAdminPostById);
 router.put("/:id", protectAdmin, imageFileUpload, postControllers.updatePostWithImage);
 router.delete("/:id", protectAdmin, postControllers.deletePost);
 router.get("/:id/comments", postControllers.getCommentByPostId);
-router.post("/:id/comments", protectUser, postValidation, postControllers.createCommentByPostId);
+router.post("/:id/comments", protectUser, postControllers.createCommentByPostId);
 router.get("/:id/likes", postControllers.getLikeByPostId);
-router.post("/:id/likes", protectUser, postValidation, postControllers.createLikeByPostId);
+router.post("/:id/likes", protectUser, postControllers.createLikeByPostId);
 router.delete("/:id/likes", protectUser, postControllers.deleteLikeByPostId);
 
 export default router;

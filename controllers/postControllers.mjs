@@ -31,6 +31,18 @@ export const getAllPosts = async (req, res) => {
   }
 };
 
+export const getPublishPosts = async (req, res) => {
+  try {
+    const results = await postService.getPublishPosts(req.query);
+    res.status(200).json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Server could not read posts because database issue",
+    });
+  }
+};
+
 export const createPost = async (req, res) => {
   try {
     const post = await postService.createPost(req.body);
@@ -135,7 +147,15 @@ export const createCommentByPostId = async (req, res) => {
     if (isNaN(postId)) {
       return res.status(400).json({ message: "Invalid post ID" });
     }
-    const comment = await postService.createCommentByPostId(postId, req.body);
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+    const commentData = {
+      ...req.body,
+      user_id: userId,
+    };
+    const comment = await postService.createCommentByPostId(postId, commentData);
     res.status(201).json({ message: "Created comment successfully", comment });
   } catch (err) {
     console.error(err);
@@ -163,8 +183,13 @@ export const createLikeByPostId = async (req, res) => {
     if (isNaN(postId)) {
       return res.status(400).json({ message: "Invalid post ID" });
     }
-    const like = await postService.createLikeByPostId(postId, req.body);
-    res.status(201).json({ message: "Created like successfully", like });
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+    const result = await postService.toggleLikeByPostId(postId, userId);
+    const status = result.liked ? 201 : 200;
+    res.status(status).json(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server could not create like because database connection" });
@@ -177,7 +202,11 @@ export const deleteLikeByPostId = async (req, res) => {
     if (isNaN(postId)) {
       return res.status(400).json({ message: "Invalid post ID" });
     }
-    const like = await postService.deleteLikeByPostId(postId, req.body.user_id);
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+    const like = await postService.deleteLikeByPostId(postId, userId);
     res.status(200).json({ message: "Deleted like successfully", like });
   } catch (err) {
     console.error(err);

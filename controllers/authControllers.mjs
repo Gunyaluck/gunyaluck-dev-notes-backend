@@ -115,6 +115,26 @@ export const resetPassword = async (req, res) => {
 };
 
 /**
+ * Get landing author (admin profile for public landing page)
+ */
+export const getLandingAuthor = async (req, res) => {
+  try {
+    const author = await authService.getLandingAuthor();
+    if (!author) {
+      return res.status(404).json({ message: "Landing author not found" });
+    }
+    res.status(200).json({
+      name: author.name,
+      profile_pic: author.profile_pic,
+      bio: author.bio,
+    });
+  } catch (error) {
+    console.error("Get landing author error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+/**
  * Update user profile
  */
 export const updateProfile = async (req, res) => {
