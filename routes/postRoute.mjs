@@ -21,6 +21,7 @@ router.get("/admin/:id", protectAdmin, postControllers.getAdminPostById);
 router.put("/:id", protectAdmin, imageFileUpload, postControllers.updatePostWithImage);
 router.delete("/:id", protectAdmin, postControllers.deletePost);
 router.get("/:id/comments", postControllers.getCommentByPostId);
+router.get("/:id/comments/:commentId/replies", postControllers.getRepliesByCommentId);
 router.post("/:id/comments", protectUser, postControllers.createCommentByPostId);
 router.get("/:id/likes", postControllers.getLikeByPostId);
 router.post("/:id/likes", protectUser, postControllers.createLikeByPostId);

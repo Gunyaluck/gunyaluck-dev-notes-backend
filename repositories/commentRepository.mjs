@@ -6,7 +6,6 @@ export const getCommentByPostId = async (postId) => {
     FROM comments
     LEFT JOIN users ON comments.user_id = users.id
     WHERE comments.post_id = $1
-    AND comments.parent_id IS NULL
     ORDER BY comments.created_at DESC
   `;
   const result = await connectionPool.query(query, [postId]);

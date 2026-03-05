@@ -138,6 +138,10 @@ export const createCommentByPostId = async (postId, commentData) => {
   return await commentRepository.createCommentByPostId(postId, commentData);
 };
 
+export const getRepliesByCommentId = async (commentId) => {
+  return await commentRepository.getRepliesByCommentId(commentId);
+};
+
 export const getLikeByPostId = async (postId) => {
   const count = await likeRepository.getLikeCountByPostId(postId);
   return { count };
