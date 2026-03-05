@@ -163,6 +163,20 @@ export const createCommentByPostId = async (req, res) => {
   }
 };
 
+export const getRepliesByCommentId = async (req, res) => {
+  try {
+    const commentId = req.params.commentId;
+    if (!commentId) {
+      return res.status(400).json({ message: "Invalid comment ID" });
+    }
+    const replies = await postService.getRepliesByCommentId(commentId);
+    res.status(200).json(replies);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server could not read replies because database connection" });
+  }
+};
+
 export const getLikeByPostId = async (req, res) => {
   try {
     const postId = parseInt(req.params.id);
