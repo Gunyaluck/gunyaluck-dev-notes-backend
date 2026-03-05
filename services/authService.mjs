@@ -1,10 +1,5 @@
 import * as authRepository from "../repositories/authRepository.mjs";
 
-/**
- * Register a new user
- * @param {Object} userData - User data (email, password, username, name)
- * @returns {Object} Created user
- */
 export const register = async (userData) => {
   const { email, password, username, name } = userData;
 
@@ -31,11 +26,6 @@ export const register = async (userData) => {
   return user;
 };
 
-/**
- * Login user
- * @param {Object} credentials - Login credentials (email, password)
- * @returns {Object} Session data with access token
- */
 export const login = async (credentials) => {
   const { email, password } = credentials;
 
@@ -57,11 +47,6 @@ export const login = async (credentials) => {
   };
 };
 
-/**
- * Get user by token
- * @param {string} token - JWT token
- * @returns {Object} User data
- */
 export const getUserByToken = async (token) => {
   // Get user from Supabase Auth
   const { data, error } = await authRepository.getUserFromSupabase(token);
@@ -89,13 +74,6 @@ export const getUserByToken = async (token) => {
   };
 };
 
-/**
- * Reset user password
- * @param {string} token - JWT token
- * @param {string} oldPassword - Old password
- * @param {string} newPassword - New password
- * @returns {Object} Success message
- */
 export const resetPassword = async (token, oldPassword, newPassword) => {
   if (!newPassword) {
     throw new Error("New password is required");
@@ -124,12 +102,6 @@ export const resetPassword = async (token, oldPassword, newPassword) => {
   return { message: "Password updated successfully" };
 };
 
-/**
- * Update user profile
- * @param {string} userId - User ID
- * @param {Object} profileData - Profile data (name, username, bio)
- * @returns {Object} Updated user
- */
 export const updateProfile = async (userId, profileData) => {
   const user = await authRepository.findUserById(userId);
   
@@ -140,4 +112,8 @@ export const updateProfile = async (userId, profileData) => {
   const updatedUser = await authRepository.updateUserProfile(userId, profileData);
   
   return updatedUser;
+};
+
+export const getLandingAuthor = async () => {
+  return await authRepository.findLandingAuthor();
 };

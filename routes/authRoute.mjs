@@ -16,6 +16,7 @@ const profilePictureUpload = multerUpload.fields([
 authRouter.post("/register", authControllers.register);
 authRouter.post("/login", authControllers.login);
 authRouter.get("/get-user", authControllers.getUser);
+authRouter.get("/landing-author", authControllers.getLandingAuthor);
 authRouter.put("/reset-password", authControllers.resetPassword);
 
 // Protected routes
