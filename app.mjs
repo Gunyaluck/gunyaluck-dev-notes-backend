@@ -14,15 +14,20 @@ const port = process.env.PORT || 4000;
 
 app.use(express.json());
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:3000",
-      "https://gunyaluck-dev-notes-git-dev-mogunyalucks-projects.vercel.app",
-    ],
-  })
-);
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://gunyaluck-dev-notes-git-dev-mogunyalucks-projects.vercel.app",
+  "https://pjsdf.online",
+  "https://www.pjsdf.online",
+];
+if (process.env.CORS_ORIGINS) {
+  allowedOrigins.push(
+    ...process.env.CORS_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
+  );
+}
+
+app.use(cors({ origin: allowedOrigins }));
 
 app.get("/", (req, res) => {
   res.send("Hello TechUp!");
