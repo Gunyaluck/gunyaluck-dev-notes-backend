@@ -15,6 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ใส่เนื้อหาไฟล์ .env ทั้งไฟล์ใน GitHub secret ชื่อ APP_ENV (บรรทัดเดียวกับหลายบรรทัดได้)
+      - name: Write .env from APP_ENV secret
+        env:
+          APP_ENV: ${{ secrets.APP_ENV }}
+        run: |
+          set -euo pipefail
+          if [ -z "${APP_ENV}" ]; then
+            echo "::error::ตั้งค่า secret APP_ENV ให้เป็นเนื้อหาเดียวกับไฟล์ .env ทั้งฉบับ"
+            exit 1
+          fi
+          echo "$APP_ENV" > .env
+
       - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -39,7 +51,6 @@ jobs:
           rsync -avz --delete \
             --exclude '.git/' \
             --exclude 'node_modules/' \
-            --exclude '.env' \
             --exclude '.github/' \
             -e "ssh ${SSH_OPTS}" \
             ./ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH}/"
