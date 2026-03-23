@@ -3,7 +3,7 @@
 REST API server for the [Gunyaluck Dev Notes](https://pjsdf.online) platform.  
 Works together with the frontend repository `gunyaluck-dev-notes`.
 
-📦 **Frontend Repo:** [gunyaluck-dev-notes](#)
+📦 **Frontend Repo:** [gunyaluck-dev-notes](https://github.com/Gunyaluck/gunyaluck-dev-notes.git)
 
 ---
 
