@@ -12,14 +12,18 @@ import statusRoutes from "./routes/statusRoute.mjs";
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.set("trust proxy", 1);
+
 app.use(express.json());
 
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://gunyaluck-dev-notes-git-dev-mogunyalucks-projects.vercel.app",
+  "https://gunyaluck-dev-notes.vercel.app",
   "https://pjsdf.online",
   "https://www.pjsdf.online",
+  "https://api.pjsdf.online",
 ];
 if (process.env.CORS_ORIGINS) {
   allowedOrigins.push(
